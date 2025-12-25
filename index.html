@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>给你的元旦告白</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  height:100vh;
+  overflow:hidden;
+  font-family:"PingFang SC","Microsoft YaHei";
+  background:#000;
+  color:#fff;
+}
+canvas{
+  position:fixed;
+  top:0;left:0;
+  width:100%;
+  height:100%;
+  z-index:0;
+}
+.card{
+  position:relative;
+  z-index:2;
+  width:90%;
+  max-width:380px;
+  margin:0 auto;
+  top:50%;
+  transform:translateY(-50%);
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(12px);
+  border-radius:20px;
+  padding:28px;
+  text-align:center;
+  box-shadow:0 0 40px rgba(255,77,109,.35);
+}
+.text{
+  font-size:16px;
+  line-height:1.9;
+  min-height:150px;
+  margin-bottom:24px;
+  animation:fade .6s;
+}
+.buttons{
+  display:flex;
+  gap:12px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+button{
+  border:none;
+  border-radius:999px;
+  padding:12px 22px;
+  font-size:14px;
+  cursor:pointer;
+  transition:.3s;
+}
+.primary{background:#ff4d6d;color:#fff}
+.secondary{background:#555;color:#fff}
+@keyframes fade{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.heart{
+  font-size:42px;
+  animation:pulse 1s infinite;
+}
+@keyframes pulse{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.2)}
+  100%{transform:scale(1)}
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="bg"></canvas>
+
+<audio id="music" loop>
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<div class="card">
+  <div id="text" class="text"></div>
+  <div id="buttons" class="buttons"></div>
+</div>
+
+<script>
+/* ===== 背景音乐渐入 ===== */
+const music = document.getElementById("music");
+let musicStarted=false;
+function startMusic(){
+  if(musicStarted) return;
+  musicStarted=true;
+  music.volume=0;
+  music.play();
+  let v=0;
+  const fade=setInterval(()=>{
+    v+=0.02;
+    music.volume=Math.min(v,0.6);
+    if(v>=0.6) clearInterval(fade);
+  },200);
+}
+
+/* ===== Canvas 心形粒子 ===== */
+const canvas=document.getElementById("bg");
+const ctx=canvas.getContext("2d");
+let w,h;
+function resize(){
+  w=canvas.width=window.innerWidth;
+  h=canvas.height=window.innerHeight;
+}
+resize();window.onresize=resize;
+
+const hearts=[];
+function heartParticle(){
+  this.x=Math.random()*w;
+  this.y=h+20;
+  this.size=Math.random()*6+4;
+  this.speed=Math.random()*1+0.5;
+  this.alpha=Math.random()*0.5+0.5;
+}
+heartParticle.prototype.draw=function(){
+  ctx.globalAlpha=this.alpha;
+  ctx.fillStyle="#ff4d6d";
+  ctx.beginPath();
+  ctx.moveTo(this.x,this.y);
+  ctx.bezierCurveTo(this.x-10,this.y-10,this.x-20,this.y+10,this.x,this.y+20);
+  ctx.bezierCurveTo(this.x+20,this.y+10,this.x+10,this.y-10,this.x,this.y);
+  ctx.fill();
+};
+heartParticle.prototype.update=function(){
+  this.y-=this.speed;
+  if(this.y<-20) this.y=h+20;
+};
+
+for(let i=0;i<40;i++) hearts.push(new heartParticle());
+
+let fireworks=false;
+
+/* ===== 烟花 ===== */
+function drawFirework(){
+  for(let i=0;i<30;i++){
+    ctx.fillStyle=`hsl(${Math.random()*360},100%,60%)`;
+    ctx.beginPath();
+    ctx.arc(
+      Math.random()*w,
+      Math.random()*h/2,
+      Math.random()*3+1,
+      0,Math.PI*2
+    );
+    ctx.fill();
+  }
+}
+
+function animate(){
+  ctx.clearRect(0,0,w,h);
+  hearts.forEach(hp=>{hp.update();hp.draw();});
+  if(fireworks) drawFirework();
+  requestAnimationFrame(animate);
+}
+animate();
+
+/* ===== 页面流程 ===== */
+const text=document.getElementById("text");
+const buttons=document.getElementById("buttons");
+
+function setPage(t,btns){
+  text.innerHTML=t;
+  text.className="text";
+  buttons.innerHTML="";
+  btns.forEach(b=>{
+    const btn=document.createElement("button");
+    btn.className=b.class;
+    btn.innerText=b.text;
+    btn.onclick=b.fn;
+    buttons.appendChild(btn);
+  });
+}
+
+/* 阶段1 */
+setPage(
+  "这一年不算轻松<br>但你一直在<br><br>有些话<br>我想慢慢说给你听",
+  [
+    {text:"我在听",class:"primary",fn:step2},
+    {text:"你要说什么",class:"secondary",fn:step2}
+  ]
+);
+
+let rejectCount=0;
+
+function step2(){
+  startMusic();
+  setPage(
+    "如果未来不是顺风顺水<br>而是需要牵着走<br><br>你愿意吗？",
+    [
+      {text:"我愿意",class:"primary",fn:step3},
+      {text:"我再想想",class:"secondary",fn:reject}
+    ]
+  );
+}
+
+function reject(){
+  rejectCount++;
+  text.innerHTML="我理解你的犹豫<br>但这件事<br>我不想草率<br><br>因为是你";
+  buttons.children[0].style.transform=`scale(${1+rejectCount*0.1})`;
+  buttons.children[1].style.transform=`scale(${1-rejectCount*0.1})`;
+}
+
+function step3(){
+  setPage(
+    "这不是一时冲动<br>也不是节日气氛<br><br>是想了很久<br>才站在你面前",
+    [
+      {text:"我确定",class:"primary",fn:step4},
+      {text:"我再想想",class:"secondary",fn:step2}
+    ]
+  );
+}
+
+function step4(){
+  fireworks=true;
+  setPage(
+    "<div class='heart'>❤</div><br>从第一眼开始<br>到现在的每一天<br><br>我越来越确定<br>你就是我想牵着走的人",
+    [
+      {text:"我愿意",class:"primary",fn:step5}
+    ]
+  );
+}
+
+function step5(){
+  setPage(
+    "这个1314<br>不是礼物<br>是我把认真<br>落到现实里",
+    [
+      {
+        text:"我收下了",
+        class:"primary",
+        fn:()=>{location.href="你的微信收款码图片链接";}
+      }
+    ]
+  );
+}
+</script>
+
+</body>
+</html>
