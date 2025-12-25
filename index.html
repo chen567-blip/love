@@ -2,75 +2,63 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>给你的元旦告白</title>
+<title>慢慢来，好吗</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{
   height:100vh;
-  overflow:hidden;
-  font-family:"PingFang SC","Microsoft YaHei";
   background:#000;
   color:#fff;
+  font-family:"PingFang SC","Microsoft YaHei";
+  overflow:hidden;
 }
 canvas{
-  position:fixed;
-  top:0;left:0;
-  width:100%;
-  height:100%;
-  z-index:0;
+  position:fixed;top:0;left:0;width:100%;height:100%;z-index:0
 }
 .card{
   position:relative;
   z-index:2;
-  width:90%;
-  max-width:380px;
-  margin:0 auto;
+  width:92%;
+  max-width:400px;
+  margin:auto;
   top:50%;
   transform:translateY(-50%);
-  background:rgba(255,255,255,0.08);
-  backdrop-filter:blur(12px);
-  border-radius:20px;
-  padding:28px;
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(16px);
+  border-radius:22px;
+  padding:30px 26px;
   text-align:center;
-  box-shadow:0 0 40px rgba(255,77,109,.35);
 }
 .text{
-  font-size:16px;
   line-height:1.9;
-  min-height:150px;
+  min-height:220px;
   margin-bottom:24px;
   animation:fade .6s;
 }
-.buttons{
-  display:flex;
-  gap:12px;
-  justify-content:center;
-  flex-wrap:wrap;
-}
-button{
-  border:none;
-  border-radius:999px;
-  padding:12px 22px;
-  font-size:14px;
-  cursor:pointer;
-  transition:.3s;
-}
-.primary{background:#ff4d6d;color:#fff}
-.secondary{background:#555;color:#fff}
 @keyframes fade{
   from{opacity:0;transform:translateY(10px)}
-  to{opacity:1;transform:translateY(0)}
+  to{opacity:1;transform:none}
 }
-.heart{
-  font-size:42px;
-  animation:pulse 1s infinite;
+.buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  justify-content:center;
 }
-@keyframes pulse{
-  0%{transform:scale(1)}
-  50%{transform:scale(1.2)}
-  100%{transform:scale(1)}
+button{
+  padding:12px 22px;
+  border:none;
+  border-radius:999px;
+  cursor:pointer;
+  background:rgba(255,255,255,.18);
+  color:#fff;
+  transition:.3s;
 }
+button:hover{background:#ff4d6d}
+.primary{background:#ff4d6d}
+.heart{font-size:42px;animation:pulse 1s infinite}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
 </style>
 </head>
 
@@ -88,160 +76,162 @@ button{
 </div>
 
 <script>
-/* ===== 背景音乐渐入 ===== */
-const music = document.getElementById("music");
-let musicStarted=false;
-function startMusic(){
-  if(musicStarted) return;
-  musicStarted=true;
-  music.volume=0;
-  music.play();
-  let v=0;
-  const fade=setInterval(()=>{
-    v+=0.02;
-    music.volume=Math.min(v,0.6);
-    if(v>=0.6) clearInterval(fade);
-  },200);
-}
-
-/* ===== Canvas 心形粒子 ===== */
+/* ===== 背景 ===== */
 const canvas=document.getElementById("bg");
 const ctx=canvas.getContext("2d");
 let w,h;
-function resize(){
-  w=canvas.width=window.innerWidth;
-  h=canvas.height=window.innerHeight;
-}
-resize();window.onresize=resize;
-
+function resize(){w=canvas.width=innerWidth;h=canvas.height=innerHeight}
+resize();onresize=resize;
 const hearts=[];
-function heartParticle(){
-  this.x=Math.random()*w;
-  this.y=h+20;
-  this.size=Math.random()*6+4;
-  this.speed=Math.random()*1+0.5;
-  this.alpha=Math.random()*0.5+0.5;
+for(let i=0;i<40;i++){
+  hearts.push({x:Math.random()*w,y:Math.random()*h,s:Math.random()*1+0.5})
 }
-heartParticle.prototype.draw=function(){
-  ctx.globalAlpha=this.alpha;
-  ctx.fillStyle="#ff4d6d";
-  ctx.beginPath();
-  ctx.moveTo(this.x,this.y);
-  ctx.bezierCurveTo(this.x-10,this.y-10,this.x-20,this.y+10,this.x,this.y+20);
-  ctx.bezierCurveTo(this.x+20,this.y+10,this.x+10,this.y-10,this.x,this.y);
-  ctx.fill();
-};
-heartParticle.prototype.update=function(){
-  this.y-=this.speed;
-  if(this.y<-20) this.y=h+20;
-};
-
-for(let i=0;i<40;i++) hearts.push(new heartParticle());
-
-let fireworks=false;
-
-/* ===== 烟花 ===== */
-function drawFirework(){
-  for(let i=0;i<30;i++){
-    ctx.fillStyle=`hsl(${Math.random()*360},100%,60%)`;
-    ctx.beginPath();
-    ctx.arc(
-      Math.random()*w,
-      Math.random()*h/2,
-      Math.random()*3+1,
-      0,Math.PI*2
-    );
-    ctx.fill();
-  }
-}
-
 function animate(){
   ctx.clearRect(0,0,w,h);
-  hearts.forEach(hp=>{hp.update();hp.draw();});
-  if(fireworks) drawFirework();
+  hearts.forEach(p=>{
+    ctx.fillStyle="rgba(255,77,109,.6)";
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,2,0,Math.PI*2);
+    ctx.fill();
+    p.y-=p.s;
+    if(p.y<0)p.y=h;
+  });
   requestAnimationFrame(animate);
 }
 animate();
 
-/* ===== 页面流程 ===== */
+/* ===== 音乐 ===== */
+const music=document.getElementById("music");
+let started=false;
+function playMusic(){
+  if(started) return;
+  started=true;
+  music.volume=0;
+  music.play();
+  let v=0;
+  const t=setInterval(()=>{
+    v+=0.02;
+    music.volume=Math.min(v,0.6);
+    if(v>=0.6) clearInterval(t);
+  },200);
+}
+
+/* ===== 页面逻辑 ===== */
 const text=document.getElementById("text");
 const buttons=document.getElementById("buttons");
 
 function setPage(t,btns){
   text.innerHTML=t;
-  text.className="text";
   buttons.innerHTML="";
   btns.forEach(b=>{
     const btn=document.createElement("button");
-    btn.className=b.class;
     btn.innerText=b.text;
+    btn.className=b.class||"";
     btn.onclick=b.fn;
     buttons.appendChild(btn);
   });
 }
 
-/* 阶段1 */
+/* ===== 流程开始 ===== */
 setPage(
-  "这一年不算轻松<br>但你一直在<br><br>有些话<br>我想慢慢说给你听",
+  "别急 🙂<br><br>这不是告白<br>也不是任务<br><br>只是想陪你<br>慢慢走一会儿",
   [
-    {text:"我在听",class:"primary",fn:step2},
-    {text:"你要说什么",class:"secondary",fn:step2}
+    {text:"那我听你说",fn:step1},
+    {text:"你先说点轻松的",fn:step1}
   ]
 );
 
-let rejectCount=0;
+function step1(){
+  playMusic();
+  setPage(
+    "如果现在不用考虑任何事<br><br>你更想——",
+    [
+      {text:"窝着刷手机",fn:()=>step1r("我猜你会选这个")},
+      {text:"出去走走",fn:()=>step1r("挺像你的")},
+      {text:"和人聊聊天",fn:()=>step1r("我也是")}
+    ]
+  );
+}
+function step1r(msg){
+  setPage(
+    msg+"<br><br>有些选择<br>其实就能看出一个人",
+    [{text:"继续",fn:step2}]
+  );
+}
 
 function step2(){
-  startMusic();
   setPage(
-    "如果未来不是顺风顺水<br>而是需要牵着走<br><br>你愿意吗？",
+    "你有没有发现<br><br>有些人<br>即使什么都不做<br>也不会让你觉得无聊",
     [
-      {text:"我愿意",class:"primary",fn:step3},
-      {text:"我再想想",class:"secondary",fn:reject}
+      {text:"好像有",fn:step3},
+      {text:"你在暗示什么",fn:step3}
     ]
   );
 }
 
-function reject(){
-  rejectCount++;
-  text.innerHTML="我理解你的犹豫<br>但这件事<br>我不想草率<br><br>因为是你";
-  buttons.children[0].style.transform=`scale(${1+rejectCount*0.1})`;
-  buttons.children[1].style.transform=`scale(${1-rejectCount*0.1})`;
-}
-
 function step3(){
   setPage(
-    "这不是一时冲动<br>也不是节日气氛<br><br>是想了很久<br>才站在你面前",
+    "我不是一个<br>很会制造惊喜的人<br><br>但我很擅长<br>把日子过稳",
     [
-      {text:"我确定",class:"primary",fn:step4},
-      {text:"我再想想",class:"secondary",fn:step2}
+      {text:"这话有点意思",fn:step4}
     ]
   );
 }
 
 function step4(){
-  fireworks=true;
   setPage(
-    "<div class='heart'>❤</div><br>从第一眼开始<br>到现在的每一天<br><br>我越来越确定<br>你就是我想牵着走的人",
+    "如果有一天<br><br>情绪低一点<br>生活乱一点<br><br>你希望身边的人是——",
     [
-      {text:"我愿意",class:"primary",fn:step5}
+      {text:"安静陪着的",fn:()=>step4r()},
+      {text:"能让我安心的",fn:()=>step4r()}
     ]
+  );
+}
+function step4r(){
+  setPage(
+    "我记住了<br><br>因为我也是这样的人",
+    [{text:"继续",fn:step5}]
   );
 }
 
 function step5(){
   setPage(
-    "这个1314<br>不是礼物<br>是我把认真<br>落到现实里",
-    [
-      {
-        text:"我收下了",
-        class:"primary",
-        fn:()=>{location.href="https://github.com/chen567-blip/love/blob/9943f97476ccc6fb5fec2d89b4e922ec3a46bf2a/wechat_qr.jpg";}
-      }
-    ]
+    "有些话<br>不适合太早说<br><br>但如果走得够久<br>自然就想说了",
+    [{text:"你慢慢说",fn:step6}]
+  );
+}
+
+function step6(){
+  setPage(
+    "我发现<br><br>我会开始在很多事情上<br>下意识想到你",
+    [{text:"比如？",fn:step7}]
+  );
+}
+
+function step7(){
+  setPage(
+    "比如今天的风<br>比如路边的灯<br><br>比如一些<br>很普通的瞬间",
+    [{text:"继续",class:"primary",fn:step8}]
+  );
+}
+
+function step8(){
+  setPage(
+    "所以我想认真问你一次<br><br>不是一时冲动<br>也不是情绪上头<br><br>如果以后很多日子<br>我都站在你身边",
+    [{text:"我愿意",class:"primary",fn:step9}]
+  );
+}
+
+function step9(){
+  setPage(
+    "<div class='heart'>❤</div><br>这个1314<br><br>不是形式<br>是我把认真<br>交出来",
+    [{
+      text:"我收下了",
+      class:"primary",
+      fn:()=>location.href="你的微信收款码直链"
+    }]
   );
 }
 </script>
-
 </body>
 </html>
