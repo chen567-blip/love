@@ -2,43 +2,41 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>慢慢来，好吗</title>
+<title>给最好的人</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{
   height:100vh;
-  background:#000;
+  background:linear-gradient(180deg,#1a1a2e,#000);
   color:#fff;
   font-family:"PingFang SC","Microsoft YaHei";
   overflow:hidden;
 }
-canvas{
-  position:fixed;top:0;left:0;width:100%;height:100%;z-index:0
-}
+canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
 .card{
   position:relative;
   z-index:2;
   width:92%;
-  max-width:400px;
+  max-width:420px;
   margin:auto;
   top:50%;
   transform:translateY(-50%);
-  background:rgba(255,255,255,.08);
-  backdrop-filter:blur(16px);
-  border-radius:22px;
-  padding:30px 26px;
+  background:rgba(255,255,255,.1);
+  backdrop-filter:blur(18px);
+  border-radius:26px;
+  padding:28px 24px;
   text-align:center;
 }
 .text{
   line-height:1.9;
-  min-height:220px;
-  margin-bottom:24px;
-  animation:fade .6s;
+  min-height:230px;
+  margin-bottom:22px;
+  animation:fade .4s;
 }
 @keyframes fade{
-  from{opacity:0;transform:translateY(10px)}
-  to{opacity:1;transform:none}
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1}
 }
 .buttons{
   display:flex;
@@ -51,14 +49,12 @@ button{
   border:none;
   border-radius:999px;
   cursor:pointer;
-  background:rgba(255,255,255,.18);
+  background:rgba(255,255,255,.2);
   color:#fff;
-  transition:.3s;
+  transition:.25s;
 }
-button:hover{background:#ff4d6d}
-.primary{background:#ff4d6d}
-.heart{font-size:42px;animation:pulse 1s infinite}
-@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+button:hover{background:#ff6b81}
+.primary{background:#ff6b81}
 </style>
 </head>
 
@@ -76,29 +72,29 @@ button:hover{background:#ff4d6d}
 </div>
 
 <script>
-/* ===== 背景 ===== */
+/* ===== 背景小爱心 ===== */
 const canvas=document.getElementById("bg");
 const ctx=canvas.getContext("2d");
 let w,h;
 function resize(){w=canvas.width=innerWidth;h=canvas.height=innerHeight}
 resize();onresize=resize;
-const hearts=[];
-for(let i=0;i<40;i++){
-  hearts.push({x:Math.random()*w,y:Math.random()*h,s:Math.random()*1+0.5})
+const ps=[];
+for(let i=0;i<45;i++){
+  ps.push({x:Math.random()*w,y:Math.random()*h,s:Math.random()*1+0.3})
 }
-function animate(){
+function draw(){
   ctx.clearRect(0,0,w,h);
-  hearts.forEach(p=>{
-    ctx.fillStyle="rgba(255,77,109,.6)";
+  ps.forEach(p=>{
+    ctx.fillStyle="rgba(255,107,129,.6)";
     ctx.beginPath();
     ctx.arc(p.x,p.y,2,0,Math.PI*2);
     ctx.fill();
     p.y-=p.s;
     if(p.y<0)p.y=h;
   });
-  requestAnimationFrame(animate);
+  requestAnimationFrame(draw);
 }
-animate();
+draw();
 
 /* ===== 音乐 ===== */
 const music=document.getElementById("music");
@@ -111,16 +107,15 @@ function playMusic(){
   let v=0;
   const t=setInterval(()=>{
     v+=0.02;
-    music.volume=Math.min(v,0.6);
-    if(v>=0.6) clearInterval(t);
+    music.volume=Math.min(v,0.5);
+    if(v>=0.5) clearInterval(t);
   },200);
 }
 
-/* ===== 页面逻辑 ===== */
+/* ===== 页面控制 ===== */
 const text=document.getElementById("text");
 const buttons=document.getElementById("buttons");
-
-function setPage(t,btns){
+function page(t,btns){
   text.innerHTML=t;
   buttons.innerHTML="";
   btns.forEach(b=>{
@@ -132,101 +127,203 @@ function setPage(t,btns){
   });
 }
 
-/* ===== 流程开始 ===== */
-setPage(
-  "别急 🙂<br><br>这不是告白<br>也不是任务<br><br>只是想陪你<br>慢慢走一会儿",
+/* ===== 流程整合 ===== */
+page(
+  "友情提示：<br><br>这是一个完全没有意义的程序<br>点的时候请保持镇定 😏<br><br>其实我自己都不知道结果会是什么",
   [
-    {text:"那我听你说",fn:step1},
-    {text:"你先说点轻松的",fn:step1}
+    {text:"镇定个屁，我点了",fn:step1},
+    {text:"我有点好奇",fn:step1}
   ]
 );
 
+/* ==== 沙雕逻辑测试 ==== */
 function step1(){
   playMusic();
-  setPage(
-    "如果现在不用考虑任何事<br><br>你更想——",
+  page(
+    "假设现在<br>你什么都不用做<br>第一件事会——",
     [
-      {text:"窝着刷手机",fn:()=>step1r("我猜你会选这个")},
-      {text:"出去走走",fn:()=>step1r("挺像你的")},
-      {text:"和人聊聊天",fn:()=>step1r("我也是")}
+      {text:"继续躺着",fn:()=>step1r()},
+      {text:"刷手机",fn:()=>step1r()},
+      {text:"吃东西",fn:()=>step1r()}
     ]
   );
 }
-function step1r(msg){
-  setPage(
-    msg+"<br><br>有些选择<br>其实就能看出一个人",
-    [{text:"继续",fn:step2}]
+
+function step1r(){
+  page(
+    "已记录 ✔️<br>完全没用，但看起来很专业 🧐",
+    [{text:"这专业有啥用？",fn:step2}]
   );
 }
 
 function step2(){
-  setPage(
-    "你有没有发现<br><br>有些人<br>即使什么都不做<br>也不会让你觉得无聊",
+  page(
+    "下一题更重要<br><br>如果汉堡是一只会说话的猫 🐱<br>它第一句话会是——",
     [
-      {text:"好像有",fn:step3},
-      {text:"你在暗示什么",fn:step3}
+      {text:"‘妈妈’",fn:step2r},
+      {text:"‘快给我吃的’",fn:step2r},
+      {text:"‘你是谁’",fn:step2r}
     ]
+  );
+}
+
+function step2r(){
+  page(
+    "记录完成 ✔️<br>虽然这不太现实哈哈哈哈哈",
+    [{text:"你越来越怪了",fn:step3}]
   );
 }
 
 function step3(){
-  setPage(
-    "我不是一个<br>很会制造惊喜的人<br><br>但我很擅长<br>把日子过稳",
+  page(
+    "现在进入‘荒谬逻辑环节’<br><br>你更可能——",
     [
-      {text:"这话有点意思",fn:step4}
+      {text:"喝水也想躺着",fn:step3r},
+      {text:"吃饭也刷手机",fn:step3r},
+      {text:"发呆也发呆",fn:step3r}
     ]
+  );
+}
+
+function step3r(){
+  page(
+    "已确认 ✔️<br>荒谬指数 +1 😂",
+    [{text:"哈哈，你这测试很离谱",fn:step4}]
   );
 }
 
 function step4(){
-  setPage(
-    "如果有一天<br><br>情绪低一点<br>生活乱一点<br><br>你希望身边的人是——",
+  page(
+    "假设你穿越到恐龙时代<br>你第一件事——",
     [
-      {text:"安静陪着的",fn:()=>step4r()},
-      {text:"能让我安心的",fn:()=>step4r()}
+      {text:"和恐龙合影",fn:step4r},
+      {text:"找吃的",fn:step4r},
+      {text:"直接躺下假装不在意",fn:step4r}
     ]
   );
 }
+
 function step4r(){
-  setPage(
-    "我记住了<br><br>因为我也是这样的人",
-    [{text:"继续",fn:step5}]
+  page(
+    "恭喜 ✔️<br>你已经超出正常思维范围 😎",
+    [{text:"我心态崩了",fn:step5}]
   );
 }
 
 function step5(){
-  setPage(
-    "有些话<br>不适合太早说<br><br>但如果走得够久<br>自然就想说了",
-    [{text:"你慢慢说",fn:step6}]
+  page(
+    "现在进入‘自嘲环节’<br><br>你觉得我做这个测试<br>目的是什么？",
+    [
+      {text:"逗你开心",fn:step5r},
+      {text:"消磨时间",fn:step5r},
+      {text:"控制世界",fn:step5r}
+    ]
+  );
+}
+
+function step5r(){
+  page(
+    "嗯 ✔️<br>以上都算半对，但最准确答案是<br>我自己也不知道 🤷‍♂️",
+    [{text:"你越来越混乱了",fn:step6}]
   );
 }
 
 function step6(){
-  setPage(
-    "我发现<br><br>我会开始在很多事情上<br>下意识想到你",
-    [{text:"比如？",fn:step7}]
+  page(
+    "假设你突然获得超能力<br><br>你第一件事会——",
+    [
+      {text:"隐身偷吃零食",fn:step6r},
+      {text:"瞬移去旅行",fn:step6r},
+      {text:"把我改成会唱歌的机器人",fn:step6r}
+    ]
+  );
+}
+
+function step6r(){
+  page(
+    "已记录 ✔️<br>超能力指数 +3 ⚡",
+    [{text:"你这指数怎么算的",fn:step7}]
   );
 }
 
 function step7(){
-  setPage(
-    "比如今天的风<br>比如路边的灯<br><br>比如一些<br>很普通的瞬间",
-    [{text:"继续",class:"primary",fn:step8}]
+  page(
+    "现在假设你是一只橡皮鸭 🦆<br>你的第一反应——",
+    [
+      {text:"水里翻滚",fn:step7r},
+      {text:"尖叫",fn:step7r},
+      {text:"无声抗议",fn:step7r}
+    ]
+  );
+}
+
+function step7r(){
+  page(
+    "已确认 ✔️<br>荒谬程度升级 🔥",
+    [{text:"这测试真的很沙雕",fn:step8}]
   );
 }
 
 function step8(){
-  setPage(
-    "所以我想认真问你一次<br><br>不是一时冲动<br>也不是情绪上头<br><br>如果以后很多日子<br>我都站在你身边",
-    [{text:"我愿意",class:"primary",fn:step9}]
+  page(
+    "差不多到了‘冷幽默环节’<br>你觉得自己今天——",
+    [
+      {text:"很漂亮",fn:step8r},
+      {text:"很开心",fn:step8r},
+      {text:"很奇怪",fn:step8r}
+    ]
   );
 }
 
+function step8r(){
+  page(
+    "嗯 ✔️<br>你选哪个都合理，反正我也记不住 😎",
+    [{text:"哈哈，我服了",fn:step9}]
+  );
+}
+
+/* ==== 轻松互动升级 + 彩蛋 ==== */
 function step9(){
-  setPage(
-    "<div class='heart'>❤</div><br>这个1314<br><br>不是形式<br>是我把认真<br>交出来",
-    [{
-      text:"我收下了",
+  page(
+    "还要继续么，下面万一出来一张鬼的图片吓死你，具体会发生什么我自己都不清楚’<br>你更可能——",
+    [
+      {text:"我不信",fn:step9r},
+      {text:"直接关闭页面",fn:step9r},
+      {text:"笑出声",fn:step9r}
+    ]
+  );
+}
+
+function step9r(){
+  page(
+    "记录完成 ✔️<br>好吧什么也没发生，说明你选对了",
+    [{text:"我甘拜下风",fn:step10}]
+  );
+}
+
+function step10(){
+  page(
+    "最后一题 🎁<br>你希望新年——",
+    [
+      {text:"吃好喝好",fn:step11},
+      {text:"刷游戏到天亮",fn:step11},
+      {text:"每天都笑",fn:step11}
+    ]
+  );
+}
+
+function step11(){
+  page(
+    "彩蛋来了 🎉<br><br>新的一年<br>不需要隆重<br>只希望你看到这个页面时<br>心情是好的 🙂",
+    [{text:"嗯，我心情挺好",fn:step12}]
+  );
+}
+
+function step12(){
+  page(
+    "这个 1314<br>不代表暗示<br>就当我请你<br>买点喜欢的东西<br>没有压力 🛒",
+    [ {
+      text:"那我不客气了",
       class:"primary",
       fn:()=>location.href="你的微信收款码直链"
     }]
